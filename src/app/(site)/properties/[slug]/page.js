@@ -14,7 +14,7 @@ export default async function PropertyDetail({ params }) {
 
   const { data: property } = await supabase
     .from('properties')
-    .select('*, property_types(name_ar), cities(name_ar), districts(name_ar), property_images(*)')
+    .select('*, property_types(name_ar), cities(name_ar), property_images(*)')
     .eq('slug', slug)
     .single()
 
@@ -63,7 +63,7 @@ export default async function PropertyDetail({ params }) {
             {property.title}
           </h1>
           <p className="text-gray-400 mb-6 break-words">
-            {property.cities?.name_ar} · {property.districts?.name_ar} · {property.property_types?.name_ar}
+            {property.cities?.name_ar} · {property.property_types?.name_ar}
           </p>
 
           <div className="grid grid-cols-3 gap-4 mb-6 bg-neutral-900 rounded-xl p-4">

@@ -36,7 +36,7 @@ export default function PropertyFilters({ types, cities }) {
       >
         <option value="">كل الأنواع</option>
         {types.map((t) => (
-          <option key={t.id} value={t.slug}>{t.name_ar}</option>
+          <option key={t.id} value={t.id}>{t.name_ar}</option>
         ))}
       </select>
 
@@ -47,7 +47,7 @@ export default function PropertyFilters({ types, cities }) {
       >
         <option value="">كل المدن</option>
         {cities.map((c) => (
-          <option key={c.id} value={c.slug}>{c.name_ar}</option>
+          <option key={c.id} value={c.id}>{c.name_ar}</option>
         ))}
       </select>
 

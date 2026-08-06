@@ -21,7 +21,7 @@ export default function AdminPropertyViewPage() {
     async function load() {
       const { data } = await supabase
         .from('properties')
-        .select('*, property_types(name_ar), cities(name_ar), districts(name_ar), property_images(*), profiles(full_name, phone, role)')
+        .select('*, property_types(name_ar), cities(name_ar), property_images(*), profiles(full_name, phone, role)')
         .eq('id', params.id)
         .single()
       setProperty(data)
@@ -88,7 +88,7 @@ export default function AdminPropertyViewPage() {
       <div className="mb-6">
         <p className="text-gray-500 text-xs mb-1">الموقع والنوع</p>
         <p className="text-white">
-          {property.cities?.name_ar} · {property.districts?.name_ar} · {property.property_types?.name_ar} · {statusLabels[property.status]}
+          {property.cities?.name_ar} · {property.property_types?.name_ar} · {statusLabels[property.status]}
         </p>
       </div>
 
