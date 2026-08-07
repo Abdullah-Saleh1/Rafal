@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { removePropertyImages } from '@/lib/property-storage'
 
 const statusLabels = {
   for_sale: 'للبيع',
@@ -40,7 +41,29 @@ export default function MyPropertiesPage() {
 
   async function handleDelete(id) {
     if (!confirm('متأكد إنك عايز تحذف العقار ده؟')) return
-    await supabase.from('properties').delete().eq('id', id)
+    const { data: property, error: fetchError } = await supabase
+      .from('properties')
+      .select('cover_image, property_images(image_url)')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !property) return
+
+    try {
+      await removePropertyImages([
+        property.cover_image,
+        ...(property.property_images || []).map((image) => image.image_url),
+      ])
+    } catch (error) {
+      alert('فشل حذف الصور من Storage: ' + error.message)
+      return
+    }
+
+    const { error } = await supabase.from('properties').delete().eq('id', id)
+    if (error) {
+      alert('تم حذف الصور، لكن فشل حذف العقار: ' + error.message)
+      return
+    }
     setProperties((prev) => prev.filter((p) => p.id !== id))
   }
 

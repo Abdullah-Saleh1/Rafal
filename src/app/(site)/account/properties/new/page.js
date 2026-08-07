@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { removePropertyImages } from '@/lib/property-storage'
 
 export default function NewPropertyPage() {
   const router = useRouter()
@@ -91,6 +92,7 @@ export default function NewPropertyPage() {
       .single()
 
     if (insertError) {
+      await removePropertyImages(uploadedUrls)
       setError('فشل حفظ العقار: ' + insertError.message)
       setLoading(false)
       return

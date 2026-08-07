@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { removePropertyImages } from '@/lib/property-storage'
 
 export default function AdminEditPropertyPage() {
   const router = useRouter()
@@ -61,7 +62,22 @@ export default function AdminEditPropertyPage() {
   }, [propertyId])
 
   async function handleDeleteImage(imageId) {
-    await supabase.from('property_images').delete().eq('id', imageId)
+    const image = images.find((item) => item.id === imageId)
+    if (!image) return
+
+    try {
+      await removePropertyImages([image.image_url])
+    } catch (error) {
+      setError('فشل حذف الصورة من Storage: ' + error.message)
+      return
+    }
+
+    const { error } = await supabase.from('property_images').delete().eq('id', imageId)
+    if (error) {
+      setError('تم حذف الصورة من Storage، لكن فشل حذف سجل الصورة: ' + error.message)
+      return
+    }
+
     setImages((prev) => prev.filter((img) => img.id !== imageId))
   }
 
