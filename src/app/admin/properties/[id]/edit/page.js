@@ -14,6 +14,7 @@ export default function AdminEditPropertyPage() {
   const [cities, setCities] = useState([])
   const [images, setImages] = useState([])
   const [coverImage, setCoverImage] = useState(null)
+  const [removedImages, setRemovedImages] = useState([])
   const [newFiles, setNewFiles] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -77,34 +78,9 @@ export default function AdminEditPropertyPage() {
       ? remainingImages[0]?.image_url || null
       : coverImage
 
-    try {
-      await removePropertyImages([image.image_url])
-    } catch (error) {
-      setError('فشل حذف الصورة من Storage: ' + error.message)
-      return
-    }
-
-    if (nextCoverImage !== coverImage) {
-      const { error: coverError } = await supabase
-        .from('properties')
-        .update({ cover_image: nextCoverImage })
-        .eq('id', propertyId)
-      if (coverError) {
-        setError('تم حذف الصورة من Storage، لكن فشل تحديث الصورة الرئيسية: ' + coverError.message)
-        return
-      }
-      setCoverImage(nextCoverImage)
-    }
-
-    if (!image.isCoverOnly) {
-      const { error } = await supabase.from('property_images').delete().eq('id', imageId)
-      if (error) {
-        setError('تم حذف الصورة من Storage، لكن فشل حذف سجل الصورة: ' + error.message)
-        return
-      }
-    }
-
-    setImages((prev) => prev.filter((img) => img.id !== imageId))
+    setImages(remainingImages)
+    setCoverImage(nextCoverImage)
+    setRemovedImages((prev) => [...prev, image])
   }
 
   async function handleSubmit(e) {
@@ -127,6 +103,7 @@ export default function AdminEditPropertyPage() {
         bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
         city_id: form.city_id || null,
         is_published: form.is_published,
+        cover_image: coverImage,
       })
       .eq('id', propertyId)
 
@@ -134,6 +111,26 @@ export default function AdminEditPropertyPage() {
       setError('فشل التحديث: ' + updateError.message)
       setLoading(false)
       return
+    }
+
+    if (removedImages.length > 0) {
+      try {
+        await removePropertyImages(removedImages.map((image) => image.image_url))
+      } catch (error) {
+        setError('تم حفظ بيانات العقار، لكن فشل حذف الصور من Storage: ' + error.message)
+        setLoading(false)
+        return
+      }
+
+      const imageIds = removedImages.filter((image) => !image.isCoverOnly).map((image) => image.id)
+      if (imageIds.length > 0) {
+        const { error: deleteError } = await supabase.from('property_images').delete().in('id', imageIds)
+        if (deleteError) {
+          setError('تم حذف الصور من Storage، لكن فشل حذف سجلاتها: ' + deleteError.message)
+          setLoading(false)
+          return
+        }
+      }
     }
 
     if (newFiles.length > 0) {
@@ -155,7 +152,7 @@ export default function AdminEditPropertyPage() {
           return
         }
       }
-      if (images.length === 0 && imageRows.length > 0) {
+      if (!coverImage && imageRows.length > 0) {
         await supabase.from('properties').update({ cover_image: imageRows[0].image_url }).eq('id', propertyId)
       }
     }

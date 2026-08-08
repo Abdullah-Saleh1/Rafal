@@ -7,6 +7,7 @@ export default async function Home() {
     .select('*, property_types(name_ar), cities(name_ar)')
     .eq('is_published', true)
     .order('created_at', { ascending: false })
+    .limit(4)
 
   return (
     <main className="min-h-screen bg-black px-6 md:px-12 py-10">
