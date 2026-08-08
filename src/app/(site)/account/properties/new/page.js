@@ -105,7 +105,14 @@ export default function NewPropertyPage() {
         image_url: url,
         sort_order: index,
       }))
-      await supabase.from('property_images').insert(imageRows)
+      const { error: imagesError } = await supabase.from('property_images').insert(imageRows)
+      if (imagesError) {
+        await supabase.from('properties').delete().eq('id', newProperty.id)
+        await removePropertyImages(uploadedUrls)
+        setError('فشل ربط الصور بالعقار: ' + imagesError.message)
+        setLoading(false)
+        return
+      }
     }
 
     router.push('/account/properties')

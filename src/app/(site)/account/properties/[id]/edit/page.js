@@ -14,6 +14,7 @@ export default function EditPropertyPage() {
   const [types, setTypes] = useState([])
   const [cities, setCities] = useState([])
   const [images, setImages] = useState([])
+  const [coverImage, setCoverImage] = useState(null)
   const [newFiles, setNewFiles] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -67,7 +68,13 @@ export default function EditPropertyPage() {
         bathrooms: property.bathrooms ?? '',
         city_id: property.city_id || '',
       })
-      setImages(property.property_images || [])
+      const savedImages = property.property_images || []
+      setCoverImage(property.cover_image || null)
+      setImages(savedImages.length > 0 ? savedImages : property.cover_image ? [{
+        id: `cover-${property.id}`,
+        image_url: property.cover_image,
+        isCoverOnly: true,
+      }] : [])
       setPageLoading(false)
     }
     init()
@@ -77,6 +84,11 @@ export default function EditPropertyPage() {
     const image = images.find((item) => item.id === imageId)
     if (!image) return
 
+    const remainingImages = images.filter((item) => item.id !== imageId)
+    const nextCoverImage = image.image_url === coverImage
+      ? remainingImages[0]?.image_url || null
+      : coverImage
+
     try {
       await removePropertyImages([image.image_url])
     } catch (error) {
@@ -84,10 +96,24 @@ export default function EditPropertyPage() {
       return
     }
 
-    const { error } = await supabase.from('property_images').delete().eq('id', imageId)
-    if (error) {
-      setError('تم حذف الصورة من Storage، لكن فشل حذف سجل الصورة: ' + error.message)
-      return
+    if (nextCoverImage !== coverImage) {
+      const { error: coverError } = await supabase
+        .from('properties')
+        .update({ cover_image: nextCoverImage })
+        .eq('id', propertyId)
+      if (coverError) {
+        setError('تم حذف الصورة من Storage، لكن فشل تحديث الصورة الرئيسية: ' + coverError.message)
+        return
+      }
+      setCoverImage(nextCoverImage)
+    }
+
+    if (!image.isCoverOnly) {
+      const { error } = await supabase.from('property_images').delete().eq('id', imageId)
+      if (error) {
+        setError('تم حذف الصورة من Storage، لكن فشل حذف سجل الصورة: ' + error.message)
+        return
+      }
     }
 
     setImages((prev) => prev.filter((img) => img.id !== imageId))
@@ -131,10 +157,16 @@ export default function EditPropertyPage() {
         if (uploadError) continue
 
         const { data: urlData } = supabase.storage.from('properties').getPublicUrl(filePath)
-        imageRows.push({ property_id: propertyId, image_url: urlData.publicUrl, sort_order: images.length })
+        imageRows.push({ property_id: propertyId, image_url: urlData.publicUrl, sort_order: images.length + imageRows.length })
       }
       if (imageRows.length > 0) {
-        await supabase.from('property_images').insert(imageRows)
+        const { error: imagesError } = await supabase.from('property_images').insert(imageRows)
+        if (imagesError) {
+          await removePropertyImages(imageRows.map((image) => image.image_url))
+          setError('فشل ربط الصور الجديدة بالعقار: ' + imagesError.message)
+          setLoading(false)
+          return
+        }
       }
 
       // لو العقار مكنش عنده صورة رئيسية (نادر لكن للاحتياط)، نحطله أول صورة جديدة
