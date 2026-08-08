@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { removePropertyImages } from '@/lib/property-storage'
 
 const statusLabels = {
   for_sale: 'للبيع',
@@ -39,34 +38,6 @@ export default function MyPropertiesPage() {
     load()
   }, [router])
 
-  async function handleDelete(id) {
-    if (!confirm('متأكد إنك عايز تحذف العقار ده؟')) return
-    const { data: property, error: fetchError } = await supabase
-      .from('properties')
-      .select('cover_image, property_images(image_url)')
-      .eq('id', id)
-      .single()
-
-    if (fetchError || !property) return
-
-    try {
-      await removePropertyImages([
-        property.cover_image,
-        ...(property.property_images || []).map((image) => image.image_url),
-      ])
-    } catch (error) {
-      alert('فشل حذف الصور من Storage: ' + error.message)
-      return
-    }
-
-    const { error } = await supabase.from('properties').delete().eq('id', id)
-    if (error) {
-      alert('تم حذف الصور، لكن فشل حذف العقار: ' + error.message)
-      return
-    }
-    setProperties((prev) => prev.filter((p) => p.id !== id))
-  }
-
   if (loading) {
     return <main className="min-h-screen bg-black flex items-center justify-center text-white">جارِ التحميل...</main>
   }
@@ -83,47 +54,30 @@ export default function MyPropertiesPage() {
         </Link>
       </div>
 
+      <p className="text-gray-400 mb-6">لتعديل أو حذف عقار، تواصل مع إدارة الموقع.</p>
+
       {properties.length === 0 && (
-        <p className="text-gray-400">لسه معملتش أي عقار. دوس "أضف عقار جديد" عشان تبدأ.</p>
+        <p className="text-gray-400">لم تضف أي عقار حتى الآن.</p>
       )}
 
       <div className="flex flex-col gap-4">
-        {properties.map((p) => (
-          <div key={p.id} className="bg-neutral-900 rounded-2xl p-5 flex items-center gap-5">
-            <img src={p.cover_image} alt={p.title} className="w-24 h-24 object-cover rounded-xl flex-shrink-0" />
+        {properties.map((property) => (
+          <div key={property.id} className="bg-neutral-900 rounded-2xl p-5 flex items-center gap-5">
+            <img src={property.cover_image} alt={property.title} className="w-24 h-24 object-cover rounded-xl flex-shrink-0" />
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <h3 className="text-white font-bold">{p.title}</h3>
-                <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    p.is_published
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-yellow-500/20 text-yellow-400'
-                  }`}
-                >
-                  {p.is_published ? 'منشور' : 'بانتظار المراجعة'}
+                <h3 className="text-white font-bold">{property.title}</h3>
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                  property.is_published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                }`}>
+                  {property.is_published ? 'منشور' : 'بانتظار المراجعة'}
                 </span>
               </div>
               <p className="text-gray-400 text-sm">
-                {p.cities?.name_ar} · {p.property_types?.name_ar} · {statusLabels[p.status]}
+                {property.cities?.name_ar} · {property.property_types?.name_ar} · {statusLabels[property.status]}
               </p>
-              <p className="text-white font-bold mt-1">{p.price?.toLocaleString('ar-SA')} ريال</p>
-            </div>
-
-            <div className="flex gap-2">
-              <Link
-                href={`/account/properties/${p.id}/edit`}
-                className="text-sm bg-neutral-800 text-white px-4 py-2 rounded-lg hover:bg-neutral-700"
-              >
-                تعديل
-              </Link>
-              <button
-                onClick={() => handleDelete(p.id)}
-                className="text-sm bg-red-500/10 text-red-400 px-4 py-2 rounded-lg hover:bg-red-500/20"
-              >
-                حذف
-              </button>
+              <p className="text-white font-bold mt-1">{property.price?.toLocaleString('ar-SA')} ريال</p>
             </div>
           </div>
         ))}
