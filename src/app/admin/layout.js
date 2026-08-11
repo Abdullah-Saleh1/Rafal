@@ -1,9 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+
+const navigation = [
+  { href: '/admin', label: 'نظرة عامة' },
+  { href: '/admin/properties', label: 'إدارة العقارات' },
+  { href: '/admin/leads', label: 'الرسائل والعملاء' },
+]
 
 export default function AdminLayout({ children }) {
   const router = useRouter()
@@ -19,23 +25,16 @@ export default function AdminLayout({ children }) {
 
     async function checkAdmin() {
       const { data: { user } } = await supabase.auth.getUser()
-
       if (!user) {
-        router.push('/admin/login')
+        router.replace('/admin/login')
         return
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
       if (profile?.role !== 'admin') {
-        router.push('/admin/login')
+        router.replace('/admin/login')
         return
       }
-
       setChecking(false)
     }
     checkAdmin()
@@ -43,41 +42,44 @@ export default function AdminLayout({ children }) {
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    router.push('/admin/login')
+    router.replace('/admin/login')
   }
 
-  if (isLoginPage) {
-    return <div className="bg-black">{children}</div>
-  }
+  if (isLoginPage) return <div className="min-h-screen bg-black">{children}</div>
 
   if (checking) {
-    return <div className="min-h-screen bg-black flex items-center justify-center text-white">جارِ التحقق...</div>
+    return <div className="grid min-h-screen place-items-center bg-black text-sm text-gray-400">جارِ التحقق من صلاحيات الإدارة...</div>
   }
 
   return (
-    <div className="min-h-screen bg-black flex">
-      <aside className="w-60 bg-neutral-950 border-l border-white/10 p-6 flex flex-col">
-        <p className="text-white font-extrabold mb-8">لوحة تحكم الأدمن</p>
-        <nav className="flex flex-col gap-2 flex-1">
-          <Link href="/admin" className="text-gray-300 hover:text-white hover:bg-white/5 rounded-lg px-4 py-2 text-sm">
-            الرئيسية
-          </Link>
-          <Link href="/admin/properties" className="text-gray-300 hover:text-white hover:bg-white/5 rounded-lg px-4 py-2 text-sm">
-            العقارات
-          </Link>
-          <Link href="/admin/leads" className="text-gray-300 hover:text-white hover:bg-white/5 rounded-lg px-4 py-2 text-sm">
-            الرسائل والعملاء
-          </Link>
+    <div className="min-h-screen bg-black md:flex">
+      <aside className="border-b border-white/10 bg-neutral-950 md:flex md:w-72 md:flex-col md:border-b-0 md:border-l">
+        <div className="flex items-center justify-between px-5 py-4 md:block md:px-7 md:py-7">
+          <img src="/images/rafal-logo-white.png" alt="رفال العقارية" className="h-14 w-44 object-cover object-center md:h-20 md:w-full" />
+          <p className="hidden text-xs font-bold tracking-[0.18em] text-gray-500 md:block">لوحة الإدارة</p>
+          <p className="text-sm font-bold text-white md:hidden">لوحة الإدارة</p>
+        </div>
+
+        <nav className="flex gap-2 overflow-x-auto px-4 pb-4 md:flex-col md:px-5 md:pb-0" aria-label="تنقل الإدارة">
+          {navigation.map((item) => {
+            const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+            return (
+              <Link key={item.href} href={item.href} className={`whitespace-nowrap rounded-xl px-4 py-3 text-sm font-bold transition ${
+                active ? 'bg-white text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              }`}>
+                {item.label}
+              </Link>
+            )
+          })}
         </nav>
-        <button
-          onClick={handleLogout}
-          className="text-red-400 text-sm text-right hover:text-red-300"
-        >
-          تسجيل الخروج
-        </button>
+
+        <div className="hidden mt-auto border-t border-white/10 p-5 md:block">
+          <Link href="/" className="mb-3 block rounded-xl px-4 py-3 text-sm text-gray-400 hover:bg-white/5 hover:text-white">عرض الموقع</Link>
+          <button onClick={handleLogout} className="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-red-400 hover:bg-red-500/10">تسجيل الخروج</button>
+        </div>
       </aside>
 
-      <main className="flex-1 p-8">{children}</main>
+      <main className="min-w-0 flex-1 p-5 md:p-10">{children}</main>
     </div>
   )
 }

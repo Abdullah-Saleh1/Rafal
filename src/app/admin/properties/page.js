@@ -88,7 +88,7 @@ export default function AdminPropertiesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-extrabold text-white">إدارة العقارات</h1>
         <Link
           href="/admin/properties/new"
@@ -98,7 +98,7 @@ export default function AdminPropertiesPage() {
         </Link>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -119,8 +119,8 @@ export default function AdminPropertiesPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {filtered.map((p) => (
-            <div key={p.id} className="bg-neutral-900 rounded-2xl p-4 flex items-center gap-4">
-              <img src={p.cover_image} alt={p.title} className="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
+            <div key={p.id} className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-neutral-900 p-4 sm:flex-row sm:items-center">
+              <img src={p.cover_image} alt={p.title} className="h-44 w-full rounded-xl object-cover sm:h-20 sm:w-20 sm:flex-shrink-0" />
 
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
@@ -139,7 +139,7 @@ export default function AdminPropertiesPage() {
                 <p className="text-white font-bold mt-1">{p.price?.toLocaleString('ar-SA')} ريال</p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 sm:justify-end">
                 <Link
                   href={`/admin/properties/${p.id}`}
                   className="text-sm bg-neutral-800 text-white px-4 py-2 rounded-lg hover:bg-neutral-700"

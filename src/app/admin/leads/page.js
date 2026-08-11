@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-const statusLabels = { new: 'جديدة', contacted: 'تم التواصل', closed: 'مقفولة' }
+const statusLabels = { new: 'جديدة', contacted: 'تم التواصل', closed: 'مقفلة' }
 const statusColors = {
-  new: 'bg-yellow-500/20 text-yellow-400',
-  contacted: 'bg-blue-500/20 text-blue-400',
-  closed: 'bg-gray-500/20 text-gray-400',
+  new: 'bg-amber-500/15 text-amber-300 border-amber-500/20',
+  contacted: 'bg-blue-500/15 text-blue-300 border-blue-500/20',
+  closed: 'bg-white/5 text-gray-400 border-white/10',
 }
 
 export default function AdminLeadsPage() {
@@ -17,10 +17,7 @@ export default function AdminLeadsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from('leads')
-        .select('*, properties(title, slug)')
-        .order('created_at', { ascending: false })
+      const { data } = await supabase.from('leads').select('*, properties(title, slug)').order('created_at', { ascending: false })
       setLeads(data || [])
       setLoading(false)
     }
@@ -28,102 +25,49 @@ export default function AdminLeadsPage() {
   }, [])
 
   async function updateStatus(id, status) {
-    await supabase.from('leads').update({ status }).eq('id', id)
-    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)))
+    const { error } = await supabase.from('leads').update({ status }).eq('id', id)
+    if (!error) setLeads((previous) => previous.map((lead) => lead.id === id ? { ...lead, status } : lead))
   }
 
   async function handleDelete(id) {
-    if (!confirm('متأكد إنك عايز تحذف الرسالة دي؟')) return
-    await supabase.from('leads').delete().eq('id', id)
-    setLeads((prev) => prev.filter((l) => l.id !== id))
+    if (!confirm('هل تريد حذف هذه الرسالة نهائيًا؟')) return
+    const { error } = await supabase.from('leads').delete().eq('id', id)
+    if (!error) setLeads((previous) => previous.filter((lead) => lead.id !== id))
   }
 
-  const filtered = tab === 'all' ? leads : leads.filter((l) => l.status === tab)
-
-  const tabs = [
-    { key: 'all', label: 'الكل' },
-    { key: 'new', label: 'جديدة' },
-    { key: 'contacted', label: 'تم التواصل' },
-    { key: 'closed', label: 'مقفولة' },
-  ]
+  const filtered = tab === 'all' ? leads : leads.filter((lead) => lead.status === tab)
+  const tabs = [{ key: 'all', label: 'الكل' }, { key: 'new', label: 'جديدة' }, { key: 'contacted', label: 'تم التواصل' }, { key: 'closed', label: 'مقفلة' }]
 
   return (
-    <div>
-      <h1 className="text-2xl font-extrabold text-white mb-6">الرسائل والعملاء المحتملين</h1>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-8"><p className="mb-2 text-sm text-gray-500">إدارة الاستفسارات</p><h1 className="text-3xl font-extrabold text-white md:text-4xl">الرسائل والعملاء المحتملون</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-gray-400">تابع كل استفسار من لحظة وصوله حتى الانتهاء من الخدمة.</p></div>
 
-      <div className="flex gap-2 mb-6">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`text-sm px-4 py-2 rounded-full font-bold transition-colors ${
-              tab === t.key ? 'bg-white text-black' : 'bg-neutral-900 text-gray-400 hover:text-white'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="mb-7 flex gap-2 overflow-x-auto pb-1">
+        {tabs.map((item) => <button key={item.key} onClick={() => setTab(item.key)} className={`whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-bold transition ${tab === item.key ? 'bg-white text-black' : 'border border-white/10 bg-neutral-900 text-gray-400 hover:text-white'}`}>{item.label}</button>)}
       </div>
 
-      {loading ? (
-        <p className="text-gray-400">جارِ التحميل...</p>
-      ) : filtered.length === 0 ? (
-        <p className="text-gray-400">مفيش رسائل في القسم ده.</p>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {filtered.map((l) => (
-            <div key={l.id} className="bg-neutral-900 rounded-2xl p-5">
-              <div className="flex items-start justify-between mb-3">
+      {loading ? <p className="text-gray-400">جارِ تحميل الرسائل...</p> : filtered.length === 0 ? <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center text-gray-400">لا توجد رسائل في هذا القسم.</div> : (
+        <div className="space-y-4">
+          {filtered.map((lead) => (
+            <article key={lead.id} className="rounded-2xl border border-white/10 bg-neutral-900 p-5 md:p-6">
+              <div className="flex flex-col justify-between gap-4 md:flex-row">
                 <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-white font-bold">{l.name}</h3>
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusColors[l.status]}`}>
-                      {statusLabels[l.status]}
-                    </span>
-                  </div>
-                  <p className="text-gray-400 text-sm" dir="ltr">{l.phone} {l.email && `· ${l.email}`}</p>
-                  {l.properties && (
-                    <p className="text-gray-500 text-xs mt-1">بخصوص عقار: {l.properties.title}</p>
-                  )}
+                  <div className="mb-2 flex flex-wrap items-center gap-3"><h2 className="text-lg font-bold text-white">{lead.name}</h2><span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusColors[lead.status]}`}>{statusLabels[lead.status]}</span></div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-400"><a href={`tel:${lead.phone}`} dir="ltr" className="hover:text-white">{lead.phone}</a>{lead.email && <a href={`mailto:${lead.email}`} dir="ltr" className="hover:text-white">{lead.email}</a>}</div>
+                  {lead.properties && <p className="mt-3 text-sm text-gray-500">بخصوص عقار: <span className="text-gray-300">{lead.properties.title}</span></p>}
                 </div>
-                <p className="text-gray-600 text-xs">
-                  {new Date(l.created_at).toLocaleDateString('ar-SA')}
-                </p>
+                <time className="text-xs text-gray-600">{new Date(lead.created_at).toLocaleDateString('ar-SA')}</time>
               </div>
 
-              {l.message && <p className="text-gray-300 text-sm mb-4">{l.message}</p>}
+              {lead.message && <p className="mt-5 rounded-xl bg-black/20 p-4 text-sm leading-7 text-gray-300">{lead.message}</p>}
 
-              <div className="flex gap-2">
-                <a
-                  href={`tel:${l.phone}`}
-                  className="text-sm bg-green-500/10 text-green-400 px-4 py-2 rounded-lg hover:bg-green-500/20"
-                >
-                  اتصال
-                </a>
-                {l.status !== 'contacted' && (
-                  <button
-                    onClick={() => updateStatus(l.id, 'contacted')}
-                    className="text-sm bg-blue-500/10 text-blue-400 px-4 py-2 rounded-lg hover:bg-blue-500/20"
-                  >
-                    تم التواصل
-                  </button>
-                )}
-                {l.status !== 'closed' && (
-                  <button
-                    onClick={() => updateStatus(l.id, 'closed')}
-                    className="text-sm bg-neutral-800 text-gray-300 px-4 py-2 rounded-lg hover:bg-neutral-700"
-                  >
-                    إقفال
-                  </button>
-                )}
-                <button
-                  onClick={() => handleDelete(l.id)}
-                  className="text-sm bg-red-500/10 text-red-400 px-4 py-2 rounded-lg hover:bg-red-500/20"
-                >
-                  حذف
-                </button>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <a href={`tel:${lead.phone}`} className="rounded-lg bg-green-500/10 px-4 py-2 text-sm font-bold text-green-300 hover:bg-green-500/20">اتصال</a>
+                {lead.status !== 'contacted' && <button onClick={() => updateStatus(lead.id, 'contacted')} className="rounded-lg bg-blue-500/10 px-4 py-2 text-sm font-bold text-blue-300 hover:bg-blue-500/20">تم التواصل</button>}
+                {lead.status !== 'closed' && <button onClick={() => updateStatus(lead.id, 'closed')} className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-gray-300 hover:bg-white/10">إقفال الطلب</button>}
+                <button onClick={() => handleDelete(lead.id)} className="mr-auto rounded-lg px-4 py-2 text-sm font-bold text-red-400 hover:bg-red-500/10">حذف</button>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
