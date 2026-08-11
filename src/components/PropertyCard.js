@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const statusLabels = {
   for_sale: 'للبيع',
@@ -13,11 +14,13 @@ export default function PropertyCard({ property }) {
       href={`/properties/${property.slug}`}
       className="block rounded-2xl overflow-hidden border border-white/10 hover:border-white/30 transition-colors bg-neutral-900"
     >
-      <div className="relative">
-        <img
+      <div className="relative h-48">
+        <Image
           src={property.cover_image}
           alt={property.title}
-          className="w-full h-48 object-cover"
+          fill
+          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+          className="object-cover"
         />
         <span className="absolute top-3 right-3 bg-black/70 text-white text-xs font-bold px-3 py-1 rounded-full">
           {statusLabels[property.status] || property.status}
