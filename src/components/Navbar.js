@@ -5,10 +5,29 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+const links = [
+  { href: '/', label: 'الرئيسية' },
+  { href: '/properties', label: 'العقارات' },
+  { href: '/contact', label: 'تواصل معنا' },
+]
+
+function Brand() {
+  return (
+    <Link href="/" className="block shrink-0" aria-label="رفال العقارية - الرئيسية">
+      <img
+        src="/images/rafal-logo-white.png"
+        alt="رفال العقارية"
+        className="h-16 w-52 object-cover object-center md:h-20 md:w-64"
+      />
+    </Link>
+  )
+}
+
 export default function Navbar() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -16,7 +35,6 @@ export default function Navbar() {
       setLoading(false)
     })
 
-    // نستمع لأي تغيير في حالة الدخول (لو سجّل دخول أو خرج من أي مكان في الموقع)
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
@@ -26,66 +44,75 @@ export default function Navbar() {
 
   async function handleLogout() {
     await supabase.auth.signOut()
+    setMenuOpen(false)
     router.push('/')
     router.refresh()
   }
 
-  return (
-    <header className="sticky top-0 z-50 bg-black/90 backdrop-blur border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 h-16 flex items-center justify-between">
-        <Link href="/" className="text-white font-extrabold text-xl">
-          عوج <span className="text-gray-400 font-normal">للعقارات</span>
-        </Link>
+  const closeMenu = () => setMenuOpen(false)
 
-        <nav className="hidden md:flex items-center gap-8 text-gray-300 text-sm">
-          <Link href="/" className="hover:text-white transition-colors">الرئيسية</Link>
-          <Link href="/properties" className="hover:text-white transition-colors">العقارات</Link>
-          <Link href="/about" className="hover:text-white transition-colors">من نحن</Link>
-          <Link href="/contact" className="hover:text-white transition-colors">تواصل معنا</Link>
+  return (
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5 md:px-10">
+        <Brand />
+
+        <nav className="hidden items-center gap-1 md:flex" aria-label="التنقل الرئيسي">
+          {links.map((link) => (
+            <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm text-gray-300 transition hover:bg-white/10 hover:text-white">
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          {!loading && (
-            user ? (
+        <div className="hidden items-center gap-3 md:flex">
+          {!loading && (user ? (
+            <>
+              <Link href="/account" className="text-sm text-gray-300 transition hover:text-white">حسابي</Link>
+              <Link href="/account/properties/new" className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-gray-200">أضف عقارك</Link>
+              <button onClick={handleLogout} className="text-sm text-red-400 transition hover:text-red-300">خروج</button>
+            </>
+          ) : (
+            <>
+              <Link href="/account/login" className="text-sm text-gray-300 transition hover:text-white">تسجيل الدخول</Link>
+              <Link href="/account/properties/new" className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-gray-200">أضف عقارك</Link>
+            </>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white md:hidden"
+          aria-label="فتح القائمة"
+          aria-expanded={menuOpen}
+        >
+          <span className="text-xl leading-none">{menuOpen ? '×' : '☰'}</span>
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="border-t border-white/10 bg-neutral-950 px-5 py-5 md:hidden">
+          <nav className="mx-auto flex max-w-7xl flex-col gap-1" aria-label="التنقل على الهاتف">
+            {links.map((link) => (
+              <Link key={link.href} href={link.href} onClick={closeMenu} className="rounded-xl px-4 py-3 text-gray-200 hover:bg-white/10">
+                {link.label}
+              </Link>
+            ))}
+            {!loading && (user ? (
               <>
-                <Link
-                  href="/account"
-                  className="text-gray-300 hover:text-white text-sm transition-colors hidden sm:block"
-                >
-                  حسابي
-                </Link>
-                <Link
-                  href="/account/properties/new"
-                  className="bg-white text-black text-sm font-bold px-4 py-2 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  + أضف عقارك
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-red-400 hover:text-red-300 text-sm transition-colors"
-                >
-                  خروج
-                </button>
+                <Link href="/account" onClick={closeMenu} className="rounded-xl px-4 py-3 text-gray-200 hover:bg-white/10">حسابي</Link>
+                <Link href="/account/properties/new" onClick={closeMenu} className="rounded-xl bg-white px-4 py-3 font-bold text-black">أضف عقارك</Link>
+                <button onClick={handleLogout} className="rounded-xl px-4 py-3 text-right text-red-400">خروج</button>
               </>
             ) : (
               <>
-                <Link
-                  href="/account/login"
-                  className="text-gray-300 hover:text-white text-sm transition-colors"
-                >
-                  تسجيل الدخول
-                </Link>
-                <Link
-                  href="/account/properties/new"
-                  className="bg-white text-black text-sm font-bold px-4 py-2 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  + أضف عقارك
-                </Link>
+                <Link href="/account/login" onClick={closeMenu} className="rounded-xl px-4 py-3 text-gray-200 hover:bg-white/10">تسجيل الدخول</Link>
+                <Link href="/account/properties/new" onClick={closeMenu} className="rounded-xl bg-white px-4 py-3 font-bold text-black">أضف عقارك</Link>
               </>
-            )
-          )}
+            ))}
+          </nav>
         </div>
-      </div>
+      )}
     </header>
   )
 }

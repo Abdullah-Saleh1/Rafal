@@ -2,11 +2,11 @@ import './globals.css'
 import Script from 'next/script'
 
 export const metadata = {
-  title: 'عوج للعقارات',
-  description: 'موقع عقارات — بيع وإيجار واستثمار',
+  title: 'رفال العقارية',
+  description: 'رفال العقارية — شراء وإيجار واستثمار',
 }
 
-const GA_ID = 'G-XXXXXXXXXX' // 👈 استبدل ده بالـ Measurement ID بتاعك
+const GA_ID = 'G-XXXXXXXXXX'
 
 export default function RootLayout({ children }) {
   return (
@@ -14,7 +14,6 @@ export default function RootLayout({ children }) {
       <body className="bg-black">
         {children}
 
-        {/* Google Analytics */}
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga-init" strategy="afterInteractive">
           {`

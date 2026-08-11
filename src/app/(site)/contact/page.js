@@ -1,16 +1,27 @@
 import LeadForm from '@/components/LeadForm'
+import { company } from '@/lib/company'
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black px-6 md:px-12 py-16">
-      <div className="max-w-lg mx-auto">
-        <h1 className="text-3xl font-extrabold text-white mb-3">تواصل معنا</h1>
-        <p className="text-gray-400 mb-8">
-          عندك استفسار عن عقار أو محتاج استشارة؟ ابعتلنا وهنتواصل معاك في أقرب وقت.
-        </p>
-        <div className="bg-neutral-900 rounded-2xl p-6">
+    <main className="min-h-screen bg-black px-6 py-14 md:px-10 md:py-20">
+      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <section>
+          <p className="mb-3 text-sm font-bold text-gray-500">تواصل معنا</p>
+          <h1 className="text-4xl font-extrabold leading-tight text-white">نحن هنا لمساعدتك في خطوتك العقارية القادمة.</h1>
+          <p className="mt-5 max-w-lg leading-8 text-gray-400">أرسل استفسارك وسيقوم فريق رفال العقارية بالتواصل معك في أقرب وقت.</p>
+
+          <div className="mt-10 space-y-5 text-sm">
+            <div className="border-r border-white/20 pr-4"><p className="text-gray-500">الهاتف</p><a href={`tel:${company.phoneHref}`} dir="ltr" className="mt-1 block text-white hover:underline">{company.phoneDisplay}</a></div>
+            <div className="border-r border-white/20 pr-4"><p className="text-gray-500">البريد الإلكتروني</p><a href={`mailto:${company.email}`} dir="ltr" className="mt-1 block text-white hover:underline">{company.email}</a></div>
+            <div className="border-r border-white/20 pr-4"><p className="text-gray-500">الموقع</p><p className="mt-1 text-white">{company.location}</p></div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-neutral-900 p-6 shadow-2xl shadow-black/30 md:p-9">
+          <h2 className="mb-1 text-2xl font-extrabold text-white">أرسل رسالة</h2>
+          <p className="mb-7 text-sm text-gray-500">سنرد عليك بأسرع وقت ممكن.</p>
           <LeadForm />
-        </div>
+        </section>
       </div>
     </main>
   )
