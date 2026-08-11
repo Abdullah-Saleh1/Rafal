@@ -47,7 +47,7 @@ export default function AdminPropertiesPage() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('متأكد إنك عايز تحذف العقار ده نهائيًا؟')) return
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذا العقار نهائيًا؟')) return
     const { data: property, error: fetchError } = await supabase
       .from('properties')
       .select('cover_image, property_images(image_url)')
@@ -115,7 +115,7 @@ export default function AdminPropertiesPage() {
       {loading ? (
         <p className="text-gray-400">جارِ التحميل...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-gray-400">مفيش عقارات في القسم ده.</p>
+        <p className="text-gray-400">لا يوجد عقارات في هذه القسم.</p>
       ) : (
         <div className="flex flex-col gap-3">
           {filtered.map((p) => (

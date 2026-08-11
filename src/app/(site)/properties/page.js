@@ -30,25 +30,24 @@ const getCities = unstable_cache(
   { revalidate: 3600 },
 )
 
-const getProperties = unstable_cache(
-  async (status, typeId, cityId) => {
-    let query = supabase
-      .from('properties')
-      .select('id, slug, title, status, price, cover_image, property_types(name_ar), cities(name_ar)')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false })
+async function getProperties(status, typeId, cityId) {
+  let query = supabase
+    .from('properties')
+    .select('id, slug, title, status, price, cover_image, property_types(name_ar), cities(name_ar)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
 
-    if (status) query = query.eq('status', status)
-    if (typeId) query = query.eq('type_id', typeId)
-    if (cityId) query = query.eq('city_id', cityId)
+  if (status) query = query.eq('status', status)
+  if (typeId) query = query.eq('type_id', typeId)
+  if (cityId) query = query.eq('city_id', cityId)
 
-    const { data, error } = await query
-    if (error) throw error
-    return data || []
-  },
-  ['published-properties'],
-  { revalidate: 60 },
-)
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function PropertiesPage({ searchParams }) {
   const params = await searchParams

@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import PropertyCard from '@/components/PropertyCard'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function Home() {
   const { data: properties } = await supabase
     .from('properties')
