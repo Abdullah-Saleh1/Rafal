@@ -30,23 +30,32 @@ const getCities = unstable_cache(
   { revalidate: 3600 },
 )
 
+// نكاش نتيجة كل تركيبة فلاتر لوحدها (مفتاح الكاش بيتغيّر حسب الفلاتر المختارة)
 async function getProperties(status, typeId, cityId) {
-  let query = supabase
-    .from('properties')
-    .select('id, slug, title, status, price, cover_image, property_types(name_ar), cities(name_ar)')
-    .eq('is_published', true)
-    .order('created_at', { ascending: false })
+  const cacheKey = ['properties-list', status || 'all', typeId || 'all', cityId || 'all']
 
-  if (status) query = query.eq('status', status)
-  if (typeId) query = query.eq('type_id', typeId)
-  if (cityId) query = query.eq('city_id', cityId)
+  const cachedFn = unstable_cache(
+    async () => {
+      let query = supabase
+        .from('properties')
+        .select('id, slug, title, status, price, cover_image, property_types(name_ar), cities(name_ar)')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
 
-  const { data, error } = await query
-  if (error) throw error
-  return data || []
+      if (status) query = query.eq('status', status)
+      if (typeId) query = query.eq('type_id', typeId)
+      if (cityId) query = query.eq('city_id', cityId)
+
+      const { data, error } = await query
+      if (error) throw error
+      return data || []
+    },
+    cacheKey,
+    { revalidate: 120, tags: ['properties'] },
+  )
+
+  return cachedFn()
 }
-
-export const revalidate = 300
 
 export default async function PropertiesPage({ searchParams }) {
   const params = await searchParams
