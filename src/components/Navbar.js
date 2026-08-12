@@ -63,26 +63,26 @@ export default function Navbar() {
   const closeMenu = () => setMenuOpen(false)
 
   return (
-    <header className={`sticky top-0 z-50 border-b border-white/10 backdrop-blur-xl transition-all duration-300 ${scrolled ? 'bg-black/95 shadow-xl shadow-black/30' : 'bg-black/80'}`}>
+    <header className={`sticky top-0 z-50 border-b border-[#E8E9E9]/10 backdrop-blur-xl transition-all duration-300 ${scrolled ? 'bg-[#0A291B]/95 shadow-xl shadow-black/30' : 'bg-[#0A291B]/80'}`}>
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5 md:px-10">
         <Brand />
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="التنقل الرئيسي">
-          {links.map((link) => <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm text-gray-300 transition duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white">{link.label}</Link>)}
+          {links.map((link) => <Link key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm text-[#E8E9E9]/70 transition duration-200 hover:-translate-y-0.5 hover:bg-[#E8E9E9]/10 hover:text-[#E8E9E9]">{link.label}</Link>)}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
           {!loading && (user ? (
             <>
-              {isAdmin && <Link href="/admin" className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition hover:bg-white hover:text-black">لوحة الإدارة</Link>}
+              {isAdmin && <Link href="/admin" className="rounded-full border border-[#E8E9E9]/30 px-4 py-2 text-sm font-bold text-[#E8E9E9] transition hover:bg-[#E8E9E9] hover:text-[#0A291B]">لوحة الإدارة</Link>}
               <Link href="/account" className="text-sm text-gray-300 transition hover:text-white">حسابي</Link>
-              <Link href="/account/properties/new" className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-gray-200">أضف عقارك</Link>
+              <Link href="/account/properties/new" className="rafal-button px-5 py-2.5 text-sm">أضف عقارك</Link>
               <button onClick={handleLogout} className="text-sm text-red-400 transition hover:text-red-300">خروج</button>
             </>
           ) : (
             <>
               <Link href="/account/login" className="text-sm text-gray-300 transition hover:text-white">تسجيل الدخول</Link>
-              <Link href="/account/properties/new" className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-gray-200">أضف عقارك</Link>
+              <Link href="/account/properties/new" className="rafal-button px-5 py-2.5 text-sm">أضف عقارك</Link>
             </>
           ))}
         </div>

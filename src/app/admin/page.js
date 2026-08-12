@@ -30,7 +30,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl" data-aos="fade-up">
       <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
         <div><p className="mb-2 text-sm text-gray-500">رفال العقارية</p><h1 className="text-3xl font-extrabold text-white md:text-4xl">نظرة عامة</h1></div>
         <Link href="/admin/properties/new" className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black hover:bg-gray-200">+ إضافة عقار جديد</Link>
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
       {loading ? <p className="text-gray-400">جارِ تحميل الإحصاءات...</p> : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {cards.map((card) => (
-            <Link key={card.label} href={card.href} className="group rounded-2xl border border-white/10 bg-neutral-900 p-6 transition hover:-translate-y-1 hover:border-white/30">
+            <Link key={card.label} href={card.href} className="group rounded-2xl border border-[#E8E9E9]/10 bg-[#15402D]/70 p-6 transition hover:-translate-y-1 hover:border-[#E8E9E9]/30">
               <p className="text-sm text-gray-400">{card.label}</p>
               <p className="my-3 text-4xl font-extrabold text-white">{card.value}</p>
               <p className="text-xs text-gray-500">{card.hint}</p>

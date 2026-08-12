@@ -39,7 +39,7 @@ export default function AdminLeadsPage() {
   const tabs = [{ key: 'all', label: 'الكل' }, { key: 'new', label: 'جديدة' }, { key: 'contacted', label: 'تم التواصل' }, { key: 'closed', label: 'مقفلة' }]
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl" data-aos="fade-up">
       <div className="mb-8"><p className="mb-2 text-sm text-gray-500">إدارة الاستفسارات</p><h1 className="text-3xl font-extrabold text-white md:text-4xl">الرسائل والعملاء المحتملون</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-gray-400">تابع كل استفسار من لحظة وصوله حتى الانتهاء من الخدمة.</p></div>
 
       <div className="mb-7 flex gap-2 overflow-x-auto pb-1">
@@ -49,7 +49,7 @@ export default function AdminLeadsPage() {
       {loading ? <p className="text-gray-400">جارِ تحميل الرسائل...</p> : filtered.length === 0 ? <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center text-gray-400">لا توجد رسائل في هذا القسم.</div> : (
         <div className="space-y-4">
           {filtered.map((lead) => (
-            <article key={lead.id} className="rounded-2xl border border-white/10 bg-neutral-900 p-5 md:p-6">
+            <article key={lead.id} className="rounded-2xl border border-[#E8E9E9]/10 bg-[#15402D]/70 p-5 md:p-6">
               <div className="flex flex-col justify-between gap-4 md:flex-row">
                 <div>
                   <div className="mb-2 flex flex-wrap items-center gap-3"><h2 className="text-lg font-bold text-white">{lead.name}</h2><span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusColors[lead.status]}`}>{statusLabels[lead.status]}</span></div>

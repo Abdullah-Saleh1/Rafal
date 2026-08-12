@@ -3,72 +3,14 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export default function LeadForm({ propertyId }) {
+export default function LeadForm({ propertyId, requireMessage = false }) {
   const [form, setForm] = useState({ name: '', phone: '', message: '' })
-  const [status, setStatus] = useState('idle') // idle | sending | success | error
-
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setStatus('sending')
-
-    const { error } = await supabase.from('leads').insert({
-      name: form.name,
-      phone: form.phone,
-      message: form.message,
-      property_id: propertyId,
-      source: 'property_page',
-    })
-
-    if (error) {
-      console.error(error)
-      setStatus('error')
-    } else {
-      setStatus('success')
-      setForm({ name: '', phone: '', message: '' })
-    }
+  const [status, setStatus] = useState('idle')
+  async function handleSubmit(event) {
+    event.preventDefault(); setStatus('sending')
+    const { error } = await supabase.from('leads').insert({ ...form, property_id: propertyId || null, source: propertyId ? 'property_page' : 'contact_page' })
+    if (error) setStatus('error'); else { setStatus('success'); setForm({ name: '', phone: '', message: '' }) }
   }
-
-  if (status === 'success') {
-    return (
-      <p className="text-green-400 font-bold">
-        تم إرسال طلبك بنجاح! هيتم التواصل معاك قريبًا.
-      </p>
-    )
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <input
-        required
-        placeholder="الاسم"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        className="bg-neutral-800 text-white rounded-lg px-4 py-3 outline-none"
-      />
-      <input
-        required
-        placeholder="رقم الجوال"
-        value={form.phone}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        className="bg-neutral-800 text-white rounded-lg px-4 py-3 outline-none"
-      />
-      <textarea
-        placeholder="رسالتك (اختياري)"
-        value={form.message}
-        onChange={(e) => setForm({ ...form, message: e.target.value })}
-        className="bg-neutral-800 text-white rounded-lg px-4 py-3 outline-none"
-        rows={3}
-      />
-      <button
-        type="submit"
-        disabled={status === 'sending'}
-        className="bg-white text-black font-bold rounded-lg py-3 hover:bg-gray-200 transition-colors disabled:opacity-50"
-      >
-        {status === 'sending' ? 'جارِ الإرسال...' : 'أنا مهتم — تواصلوا معي'}
-      </button>
-      {status === 'error' && (
-        <p className="text-red-400 text-sm">حصل خطأ، حاول تاني.</p>
-      )}
-    </form>
-  )
+  if (status === 'success') return <p className="rounded-xl bg-[#E8E9E9]/10 p-4 text-sm font-bold text-[#E8E9E9]">تم إرسال طلبك بنجاح، وسيتواصل معك فريق رفال قريبًا.</p>
+  return <form onSubmit={handleSubmit} className="flex flex-col gap-3"><input required placeholder="الاسم الكامل" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="rafal-input"/><input required inputMode="tel" placeholder="رقم الجوال" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} className="rafal-input"/><textarea required={requireMessage} placeholder={requireMessage ? 'اكتب رسالتك' : 'كيف يمكننا مساعدتك؟ (اختياري)'} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} className="rafal-input min-h-24 resize-y" rows={3}/><button type="submit" disabled={status === 'sending'} className="rafal-button mt-1 px-5 py-3 disabled:opacity-60">{status === 'sending' ? 'جارِ الإرسال...' : 'إرسال الطلب'}</button>{status === 'error' && <p className="text-sm text-red-300">تعذر إرسال الطلب، حاول مرة أخرى.</p>}</form>
 }

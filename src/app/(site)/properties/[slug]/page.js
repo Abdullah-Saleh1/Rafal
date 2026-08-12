@@ -2,97 +2,37 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import LeadForm from '@/components/LeadForm'
 
-const statusLabels = {
-  for_sale: 'للبيع',
-  for_rent: 'للإيجار',
-  for_investment: 'استثمار',
-  rented: 'تم الإيجار',
-}
+const labels = { for_sale: 'للبيع', for_rent: 'للإيجار', for_investment: 'استثمار', rented: 'تم الإيجار' }
+const whatsappNumber = '966583166293'
 
 export default async function PropertyDetail({ params }) {
   const { slug } = await params
+  const { data: property } = await supabase.from('properties').select('*, property_types(name_ar), cities(name_ar), property_images(*)').eq('slug', slug).single()
+  if (!property) notFound()
 
-  const { data: property } = await supabase
-    .from('properties')
-    .select('*, property_types(name_ar), cities(name_ar), property_images(*)')
-    .eq('slug', slug)
-    .single()
-
-  if (!property) {
-    notFound()
-  }
-
-  // نجمع كل الصور: الصورة الرئيسية + باقي الصور، من غير تكرار
-  const galleryImages = [
-    property.cover_image,
-    ...(property.property_images || [])
-      .map((img) => img.image_url)
-      .filter((url) => url !== property.cover_image),
-  ]
+  const images = [property.cover_image, ...(property.property_images || []).map((image) => image.image_url)].filter(Boolean).filter((url, index, array) => array.indexOf(url) === index)
+  const whatsappText = encodeURIComponent(`مرحبًا، أنا مهتم بالعقار: ${property.title}`)
 
   return (
-    <main className="min-h-screen bg-black px-6 md:px-12 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* عمود المحتوى الرئيسي */}
-        <div className="lg:col-span-2 min-w-0">
-          {/* الصورة الرئيسية */}
-          <img
-            src={galleryImages[0]}
-            alt={property.title}
-            className="w-full h-80 object-cover rounded-2xl mb-3"
-          />
-
-          {/* باقي الصور كمعرض مصغر */}
-          {galleryImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-3 mb-6">
-              {galleryImages.slice(1).map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  alt=""
-                  className="w-full h-20 object-cover rounded-lg"
-                />
-              ))}
+    <main className="rafal-page min-h-screen px-5 py-8 md:px-10 md:py-12">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-7 flex flex-wrap items-center gap-3 text-sm text-[#E8E9E9]/60" data-aos="fade-right"><span>{property.cities?.name_ar}</span><span>•</span><span>{property.property_types?.name_ar}</span><span>•</span><span>{labels[property.status] || property.status}</span></div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <section className="min-w-0">
+            <div className="overflow-hidden rounded-3xl border border-[#E8E9E9]/10 bg-[#15402D]" data-aos="fade-up">
+              <img src={images[0]} alt={property.title} className="h-[340px] w-full object-cover md:h-[520px]" />
             </div>
-          )}
-
-          <span className="inline-block bg-white text-black text-xs font-bold px-3 py-1 rounded-full mb-4">
-            {statusLabels[property.status] || property.status}
-          </span>
-          <h1 className="text-3xl font-extrabold text-white mb-2 break-words">
-            {property.title}
-          </h1>
-          <p className="text-gray-400 mb-6 break-words">
-            {property.cities?.name_ar} · {property.property_types?.name_ar}
-          </p>
-
-          <div className="grid grid-cols-3 gap-4 mb-6 bg-neutral-900 rounded-xl p-4">
-            <div>
-              <p className="text-gray-500 text-sm">المساحة</p>
-              <p className="text-white font-bold">{property.area_sqm} م²</p>
+            {images.length > 1 && <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4" data-aos="fade-up">{images.slice(1).map((url) => <img key={url} src={url} alt="صورة للعقار" className="h-24 w-full rounded-xl object-cover transition hover:scale-[1.03]" />)}</div>}
+            <div className="mt-9" data-aos="fade-up"><span className="rounded-full border border-[#E8E9E9]/25 bg-[#15402D] px-3 py-1 text-xs font-bold text-[#E8E9E9]">{labels[property.status] || property.status}</span><h1 className="mt-4 text-3xl font-extrabold leading-tight text-[#E8E9E9] md:text-5xl">{property.title}</h1></div>
+            <div className="rafal-surface mt-7 grid grid-cols-3 rounded-2xl p-5" data-aos="fade-up">
+              <div><p className="text-xs text-[#E8E9E9]/55">المساحة</p><p className="mt-1 font-bold text-[#E8E9E9]">{property.area_sqm || '—'} م²</p></div>
+              <div className="border-x border-[#E8E9E9]/10 px-4"><p className="text-xs text-[#E8E9E9]/55">غرف النوم</p><p className="mt-1 font-bold text-[#E8E9E9]">{property.bedrooms ?? '—'}</p></div>
+              <div className="pr-4"><p className="text-xs text-[#E8E9E9]/55">دورات المياه</p><p className="mt-1 font-bold text-[#E8E9E9]">{property.bathrooms ?? '—'}</p></div>
             </div>
-            <div>
-              <p className="text-gray-500 text-sm">غرف النوم</p>
-              <p className="text-white font-bold">{property.bedrooms ?? '—'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">دورات المياه</p>
-              <p className="text-white font-bold">{property.bathrooms ?? '—'}</p>
-            </div>
-          </div>
+            <article className="mt-8 rounded-2xl border border-[#E8E9E9]/10 bg-[#0A291B]/60 p-6" data-aos="fade-up"><h2 className="text-xl font-extrabold text-[#E8E9E9]">تفاصيل العقار</h2><p className="mt-4 whitespace-pre-line leading-8 text-[#E8E9E9]/75">{property.description}</p></article>
+          </section>
 
-          <p className="text-gray-300 leading-8 break-words whitespace-pre-line">
-            {property.description}
-          </p>
-        </div>
-
-        {/* عمود جانبي: السعر + فورم التواصل */}
-        <div className="bg-neutral-900 rounded-2xl p-6 h-fit sticky top-6 min-w-0">
-          <p className="text-gray-400 text-sm mb-1">السعر</p>
-          <p className="text-3xl font-extrabold text-white mb-6">
-            {property.price?.toLocaleString('ar-SA')} ريال
-          </p>
-          <LeadForm propertyId={property.id} />
+          <aside className="h-fit lg:sticky lg:top-28" data-aos="fade-left"><div className="rafal-surface rounded-3xl p-6"><p className="text-sm text-[#E8E9E9]/55">السعر</p><p className="my-2 text-3xl font-extrabold text-[#E8E9E9]">{property.price?.toLocaleString('ar-SA')} ريال</p><p className="mb-6 text-sm text-[#E8E9E9]/55">مهتم بالعقار؟ تواصل معنا مباشرة.</p><a href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`} target="_blank" rel="noreferrer" className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-bold text-[#092918] transition hover:-translate-y-0.5 hover:brightness-110">تواصل عبر واتساب <span aria-hidden="true">↗</span></a><div className="my-6 h-px bg-[#E8E9E9]/10"/><h2 className="mb-4 text-lg font-extrabold text-[#E8E9E9]">أرسل استفسارك</h2><LeadForm propertyId={property.id} /></div></aside>
         </div>
       </div>
     </main>

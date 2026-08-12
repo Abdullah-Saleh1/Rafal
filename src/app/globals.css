@@ -1,27 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+:root { --rafal-deep: #0A291B; --rafal-green: #15402D; --rafal-white: #E8E9E9; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--rafal-deep); color: var(--rafal-white); font-family: 'Tajawal', Arial, sans-serif; }
+::selection { background: #E8E9E9; color: #0A291B; }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+.rafal-page { background: radial-gradient(circle at 90% 0%, rgba(21,64,45,.38), transparent 26rem), #0A291B; }
+.rafal-surface { border: 1px solid rgba(232,233,233,.12); background: rgba(21,64,45,.42); box-shadow: 0 20px 55px rgba(0,0,0,.18); }
+.rafal-input { width: 100%; border: 1px solid rgba(232,233,233,.15); border-radius: .9rem; background: rgba(10,41,27,.72); color: #E8E9E9; padding: .85rem 1rem; outline: none; transition: border-color .2s, box-shadow .2s, background .2s; }
+.rafal-input:focus { border-color: rgba(232,233,233,.6); background: rgba(10,41,27,.95); box-shadow: 0 0 0 4px rgba(232,233,233,.08); }
+.rafal-button { border-radius: 9999px; background: #E8E9E9; color: #0A291B; font-weight: 800; transition: transform .2s, box-shadow .2s, background .2s; }
+.rafal-button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 12px 28px rgba(0,0,0,.22); }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Tajawal', Arial, sans-serif;
-}
+[data-aos] { opacity: 0; transition: opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1); }
+[data-aos="fade-up"] { transform: translateY(28px); }
+[data-aos="fade-right"] { transform: translateX(28px); }
+[data-aos="fade-left"] { transform: translateX(-28px); }
+[data-aos].aos-animate { opacity: 1; transform: translate3d(0,0,0); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } [data-aos] { opacity: 1; transform: none; } }

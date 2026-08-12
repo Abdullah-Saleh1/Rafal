@@ -52,8 +52,8 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-black md:flex">
-      <aside className="border-b border-white/10 bg-neutral-950 md:flex md:w-72 md:flex-col md:border-b-0 md:border-l">
+    <div className="min-h-screen bg-[#0A291B] md:flex">
+      <aside className="border-b border-[#E8E9E9]/10 bg-[#15402D] md:flex md:w-72 md:flex-col md:border-b-0 md:border-l">
         <div className="flex items-center justify-between px-5 py-4 md:block md:px-7 md:py-7">
           <img src="/images/rafal-logo-white.png" alt="رفال العقارية" className="h-14 w-44 object-cover object-center md:h-20 md:w-full" />
           <p className="hidden text-xs font-bold tracking-[0.18em] text-gray-500 md:block">لوحة الإدارة</p>
@@ -73,7 +73,7 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="hidden mt-auto border-t border-white/10 p-5 md:block">
+        <div className="hidden mt-auto border-t border-[#E8E9E9]/10 p-5 md:block">
           <Link href="/" className="mb-3 block rounded-xl px-4 py-3 text-sm text-gray-400 hover:bg-white/5 hover:text-white">عرض الموقع</Link>
           <button onClick={handleLogout} className="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-red-400 hover:bg-red-500/10">تسجيل الخروج</button>
         </div>
