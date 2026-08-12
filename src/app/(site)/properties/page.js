@@ -46,8 +46,7 @@ async function getProperties(status, typeId, cityId) {
   return data || []
 }
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 300
 
 export default async function PropertiesPage({ searchParams }) {
   const params = await searchParams
