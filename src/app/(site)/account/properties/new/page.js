@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { removePropertyImages } from '@/lib/property-storage'
+import { convertImageToWebp, removePropertyImages } from '@/lib/property-storage'
+import { constructionStages } from '@/lib/property-constants'
 
 export default function NewPropertyPage() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function NewPropertyPage() {
   const [form, setForm] = useState({
     title: '', description: '', type_id: '', status: 'for_sale',
     price: '', area_sqm: '', bedrooms: '', bathrooms: '', city_id: '',
+    construction_stage: 'ready', construction_progress: '',
   })
 
   useEffect(() => {
@@ -49,7 +51,8 @@ export default function NewPropertyPage() {
 
     // 1) نرفع كل الصور على Storage، صورة صورة
     const uploadedUrls = []
-    for (const f of files) {
+    for (const selectedFile of files) {
+      const f = await convertImageToWebp(selectedFile)
       const fileExt = f.name.split('.').pop()
       const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
 
@@ -84,6 +87,8 @@ export default function NewPropertyPage() {
         bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
         bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
         city_id: form.city_id || null,
+        construction_stage: form.construction_stage,
+        construction_progress: form.construction_stage === 'under_construction' && form.construction_progress !== '' ? Number(form.construction_progress) : null,
         cover_image: uploadedUrls[0],
         owner_id: user.id,
         is_published: false,
@@ -119,10 +124,10 @@ export default function NewPropertyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 md:px-12 py-10">
-      <div className="max-w-xl mx-auto">
+    <main className="rafal-page min-h-screen px-6 py-12 md:px-12">
+      <div className="rafal-surface max-w-2xl mx-auto rounded-3xl p-6 md:p-9">
         <h1 className="text-2xl font-extrabold text-white mb-2">أضف عقارك</h1>
-        <p className="text-gray-400 text-sm mb-8">
+        <p className="text-[#E8E9E9]/60 text-sm mb-8">
           عقارك هيفضل "بانتظار المراجعة" لحد ما فريقنا يوافق عليه وينشره.
         </p>
 
@@ -132,7 +137,7 @@ export default function NewPropertyPage() {
             placeholder="عنوان العقار"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+            className="rafal-input"
           />
 
           <textarea
@@ -141,7 +146,7 @@ export default function NewPropertyPage() {
             rows={4}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+            className="rafal-input"
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -149,7 +154,7 @@ export default function NewPropertyPage() {
               required
               value={form.type_id}
               onChange={(e) => setForm({ ...form, type_id: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             >
               <option value="">نوع العقار</option>
               {types.map((t) => <option key={t.id} value={t.id}>{t.name_ar}</option>)}
@@ -159,7 +164,7 @@ export default function NewPropertyPage() {
               required
               value={form.city_id}
               onChange={(e) => setForm({ ...form, city_id: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             >
               <option value="">المدينة</option>
               {cities.map((c) => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
@@ -169,12 +174,33 @@ export default function NewPropertyPage() {
           <select
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
-            className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+            className="rafal-input"
           >
             <option value="for_sale">للبيع</option>
             <option value="for_rent">للإيجار</option>
             <option value="for_investment">استثمار</option>
           </select>
+
+          <select
+            value={form.construction_stage}
+            onChange={(e) => setForm({ ...form, construction_stage: e.target.value, construction_progress: e.target.value === 'under_construction' ? form.construction_progress : '' })}
+            className="rafal-input"
+          >
+            {constructionStages.map((stage) => <option key={stage.value} value={stage.value}>{stage.label}</option>)}
+          </select>
+
+          {form.construction_stage === 'under_construction' && (
+            <input
+              required
+              type="number"
+              min="0"
+              max="100"
+              placeholder="نسبة اكتمال الإنشاء (من 0 إلى 100)"
+              value={form.construction_progress}
+              onChange={(e) => setForm({ ...form, construction_progress: e.target.value })}
+              className="rafal-input"
+            />
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <input
@@ -183,7 +209,7 @@ export default function NewPropertyPage() {
               placeholder="السعر (ريال)"
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             />
             <input
               required
@@ -191,7 +217,7 @@ export default function NewPropertyPage() {
               placeholder="المساحة (م²)"
               value={form.area_sqm}
               onChange={(e) => setForm({ ...form, area_sqm: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             />
           </div>
 
@@ -201,14 +227,14 @@ export default function NewPropertyPage() {
               placeholder="عدد الغرف (اختياري)"
               value={form.bedrooms}
               onChange={(e) => setForm({ ...form, bedrooms: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             />
             <input
               type="number"
               placeholder="دورات المياه (اختياري)"
               value={form.bathrooms}
               onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
-              className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+              className="rafal-input"
             />
           </div>
 
@@ -225,7 +251,7 @@ export default function NewPropertyPage() {
               className="text-white text-sm"
             />
             {files.length > 0 && (
-              <p className="text-gray-500 text-xs mt-1">تم اختيار {files.length} صورة</p>
+              <><p className="text-gray-500 text-xs mt-1">تم اختيار {files.length} صورة</p><div className="mt-3 grid grid-cols-3 gap-2">{files.map((file, index) => <img key={`${file.name}-${index}`} src={URL.createObjectURL(file)} alt={`معاينة الصورة ${index + 1}`} className="h-20 w-full rounded-lg object-cover" />)}</div></>
             )}
           </div>
 
@@ -234,7 +260,7 @@ export default function NewPropertyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-white text-black font-bold rounded-lg py-3 mt-2 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="rafal-button py-3 mt-2 disabled:opacity-50"
           >
             {loading ? 'جارِ الإرسال...' : 'إرسال العقار للمراجعة'}
           </button>

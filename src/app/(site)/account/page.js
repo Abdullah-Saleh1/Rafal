@@ -33,22 +33,22 @@ export default function AccountPage() {
   }
 
   if (loading) {
-    return <main className="min-h-screen bg-black flex items-center justify-center text-white">جارِ التحميل...</main>
+    return <main className="rafal-page min-h-screen flex items-center justify-center text-[#E8E9E9]">جارِ التحميل...</main>
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 md:px-12 py-16">
+    <main className="rafal-page min-h-screen px-6 py-16 md:px-12">
       <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-extrabold text-white mb-8">حسابي</h1>
+        <p className="mb-2 text-xs font-bold tracking-[.2em] text-[#E8E9E9]/50">RAFAL REAL ESTATE</p><h1 className="text-3xl font-extrabold text-[#E8E9E9] mb-8">حسابي</h1>
 
-        <div className="bg-neutral-900 rounded-2xl p-6 mb-6">
+        <div className="rafal-surface rounded-3xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center font-extrabold text-xl">
+            <div className="w-14 h-14 rounded-full bg-[#E8E9E9] text-[#0A291B] flex items-center justify-center font-extrabold text-xl">
               {profile?.full_name?.[0] || email[0]?.toUpperCase()}
             </div>
             <div>
-              <p className="text-white font-bold">{profile?.full_name || 'بدون اسم'}</p>
-              <p className="text-gray-400 text-sm">{email}</p>
+              <p className="text-[#E8E9E9] font-bold">{profile?.full_name || 'بدون اسم'}</p>
+              <p className="text-[#E8E9E9]/60 text-sm">{email}</p>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export default function AccountPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/account/properties"
-            className="bg-white text-black text-center font-bold rounded-lg py-3 hover:bg-gray-200 transition-colors"
+            className="rafal-button text-center py-3"
           >
             عقاراتي
           </Link>

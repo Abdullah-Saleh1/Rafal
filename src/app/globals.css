@@ -13,6 +13,15 @@ body { margin: 0; background: var(--rafal-deep); color: var(--rafal-white); font
 .rafal-input:focus { border-color: rgba(232,233,233,.6); background: rgba(10,41,27,.95); box-shadow: 0 0 0 4px rgba(232,233,233,.08); }
 .rafal-button { border-radius: 9999px; background: #E8E9E9; color: #0A291B; font-weight: 800; transition: transform .2s, box-shadow .2s, background .2s; }
 .rafal-button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 12px 28px rgba(0,0,0,.22); }
+.rafal-marquee { animation: rafal-marquee 28s linear infinite; }
+.rafal-marquee span { border: 1px solid rgba(232,233,233,.16); border-radius: 9999px; background: rgba(10,41,27,.5); padding: .7rem 1.2rem; color: rgba(232,233,233,.78); font-size: .875rem; font-weight: 700; transition: background .25s, color .25s, transform .25s; }
+.rafal-marquee span:hover { background: #E8E9E9; color: #0A291B; transform: translateY(-2px); }
+@keyframes rafal-marquee { from { transform: translateX(0); } to { transform: translateX(50%); } }
+.partners-marquee-track { display: flex; width: max-content; gap: 1rem; animation: partners-scroll 24s linear infinite; }
+.partners-marquee:hover .partners-marquee-track { animation-play-state: paused; }
+.partners-marquee-item { display: grid; height: 6.5rem; width: 12.5rem; place-items: center; border: 1px solid rgba(232,233,233,.12); border-radius: 1.25rem; background: rgba(10,41,27,.48); padding: 1rem; transition: transform .3s, border-color .3s, background .3s, box-shadow .3s; }
+.partners-marquee-item:hover { transform: translateY(-.35rem); border-color: rgba(232,233,233,.5); background: #E8E9E9; box-shadow: 0 16px 28px rgba(0,0,0,.24); }
+@keyframes partners-scroll { from { transform: translateX(0); } to { transform: translateX(50%); } }
 
 [data-aos] { opacity: 0; transition: opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1); }
 [data-aos="fade-up"] { transform: translateY(28px); }

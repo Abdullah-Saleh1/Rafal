@@ -21,6 +21,7 @@ export default function ContactPage() {
           <h2 className="mb-1 text-2xl font-extrabold text-white">أرسل رسالة</h2>
           <p className="mb-7 text-sm text-gray-500">سنرد عليك بأسرع وقت ممكن.</p>
           <LeadForm requireMessage />
+          <a href={company.whatsappHref} target="_blank" rel="noreferrer" className="mt-3 flex w-full items-center justify-center rounded-full bg-[#25D366] px-5 py-3 font-bold text-[#092918] transition hover:-translate-y-0.5 hover:brightness-110">تواصل مباشر عبر واتساب ↗</a>
         </section>
       </div>
     </main>

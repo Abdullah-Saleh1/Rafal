@@ -1,40 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { constructionStageLabels } from '@/lib/property-constants'
 
-const statusLabels = {
-  for_sale: 'للبيع',
-  for_rent: 'للإيجار',
-  for_investment: 'استثمار',
-  rented: 'تم الإيجار',
-}
+const statusLabels = { for_sale: 'للبيع', for_rent: 'للإيجار', for_investment: 'استثمار', rented: 'تم الإيجار' }
 
 export default function PropertyCard({ property }) {
-  return (
-    <Link
-      href={`/properties/${property.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-[#E8E9E9]/10 bg-[#15402D]/75 transition duration-300 hover:-translate-y-1 hover:border-[#E8E9E9]/30 hover:shadow-2xl hover:shadow-black/40"
-    >
-      <div className="relative h-48">
-        <Image
-          src={property.cover_image}
-          alt={property.title}
-          fill
-          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-          className="object-cover transition duration-500 group-hover:scale-105"
-        />
-        <span className="absolute top-3 right-3 rounded-full border border-[#E8E9E9]/20 bg-[#0A291B]/85 px-3 py-1 text-xs font-bold text-[#E8E9E9]">
-          {statusLabels[property.status] || property.status}
-        </span>
-      </div>
-      <div className="p-5">
-        <h3 className="mb-2 text-base font-bold text-white">{property.title}</h3>
-        <p className="text-gray-400 text-sm">
-          {property.cities?.name_ar} · {property.property_types?.name_ar}
-        </p>
-        <p className="mt-4 text-base font-extrabold text-white">
-          {property.price?.toLocaleString('ar-SA')} ريال
-        </p>
-      </div>
-    </Link>
-  )
+  const stage = property.construction_stage || 'ready'
+  const progress = property.construction_progress === null || property.construction_progress === undefined || property.construction_progress === '' ? null : Math.min(100, Math.max(0, Number(property.construction_progress)))
+  return <Link href={`/properties/${property.slug}`} className="group block h-full overflow-hidden rounded-[1.75rem] border border-[#E8E9E9]/10 bg-[#15402D] shadow-xl shadow-black/15 transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#E8E9E9]/35 hover:shadow-2xl hover:shadow-black/30"><div className="relative h-80 overflow-hidden"><Image src={property.cover_image} alt={property.title} fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"/><div className="absolute inset-0 bg-gradient-to-t from-[#15402D] via-[#0A291B]/10 to-transparent"/><div className="absolute right-4 top-4 flex flex-wrap gap-2"><span className="rounded-full bg-[#0A291B]/85 px-3 py-1.5 text-xs font-bold text-[#E8E9E9] backdrop-blur">{statusLabels[property.status] || property.status}</span><span className="rounded-full border border-[#E8E9E9]/20 bg-[#15402D]/90 px-3 py-1.5 text-xs font-bold text-[#E8E9E9] backdrop-blur">{constructionStageLabels[stage] || 'قيد الإنشاء'}</span></div>{progress !== null && <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-[#0A291B]/75 p-3 backdrop-blur"><div className="mb-2 flex items-center justify-between text-xs font-bold text-[#E8E9E9]"><span>نسبة الإنجاز</span><span>{progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-[#E8E9E9]/25"><div className="h-full rounded-full bg-[#E8E9E9] transition-all duration-700" style={{ width: `${progress}%` }}/></div></div>}</div><div className="-mt-8 relative rounded-t-[1.75rem] bg-[#15402D] px-6 pb-7 pt-6"><p className="mb-2 text-xs text-[#E8E9E9]/55">{property.cities?.name_ar || '—'} <span className="px-1">•</span> {property.property_types?.name_ar || '—'}</p><h3 className="line-clamp-1 text-xl font-extrabold text-[#E8E9E9]">{property.title}</h3><div className="mt-5 flex items-center justify-between"><p className="text-lg font-extrabold text-[#E8E9E9]">{property.price?.toLocaleString('ar-SA')} ريال</p><span className="rounded-full border border-[#E8E9E9]/15 px-3 py-1.5 text-sm font-bold text-[#E8E9E9]/70 transition group-hover:bg-[#E8E9E9] group-hover:text-[#0A291B]">التفاصيل</span></div></div></Link>
 }

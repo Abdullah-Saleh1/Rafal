@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { removePropertyImages } from '@/lib/property-storage'
+import { convertImageToWebp, removePropertyImages } from '@/lib/property-storage'
+import { constructionStages } from '@/lib/property-constants'
 
 export default function AdminEditPropertyPage() {
   const router = useRouter()
@@ -23,6 +24,7 @@ export default function AdminEditPropertyPage() {
   const [form, setForm] = useState({
     title: '', description: '', type_id: '', status: 'for_sale',
     price: '', area_sqm: '', bedrooms: '', bathrooms: '', city_id: '',
+    google_maps_url: '', construction_stage: 'ready', construction_progress: '',
     is_published: false,
   })
 
@@ -55,6 +57,9 @@ export default function AdminEditPropertyPage() {
         bedrooms: property.bedrooms ?? '',
         bathrooms: property.bathrooms ?? '',
         city_id: property.city_id || '',
+        google_maps_url: property.google_maps_url || '',
+        construction_stage: property.construction_stage || 'ready',
+        construction_progress: property.construction_progress ?? '',
         is_published: property.is_published,
       })
       const savedImages = property.property_images || []
@@ -102,6 +107,9 @@ export default function AdminEditPropertyPage() {
         bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
         bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
         city_id: form.city_id || null,
+        google_maps_url: form.google_maps_url.trim() || null,
+        construction_stage: form.construction_stage,
+        construction_progress: form.construction_stage === 'under_construction' && form.construction_progress !== '' ? Number(form.construction_progress) : null,
         is_published: form.is_published,
         cover_image: coverImage,
       })
@@ -135,7 +143,8 @@ export default function AdminEditPropertyPage() {
 
     if (newFiles.length > 0) {
       const imageRows = []
-      for (const f of newFiles) {
+      for (const selectedFile of newFiles) {
+        const f = await convertImageToWebp(selectedFile)
         const fileExt = f.name.split('.').pop()
         const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
         const { error: uploadError } = await supabase.storage.from('properties').upload(filePath, f)
@@ -238,6 +247,35 @@ export default function AdminEditPropertyPage() {
           <option value="rented">تم الإيجار</option>
         </select>
 
+        <select
+          value={form.construction_stage}
+          onChange={(e) => setForm({ ...form, construction_stage: e.target.value, construction_progress: e.target.value === 'under_construction' ? form.construction_progress : '' })}
+          className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+        >
+          {constructionStages.map((stage) => <option key={stage.value} value={stage.value}>{stage.label}</option>)}
+        </select>
+
+        {form.construction_stage === 'under_construction' && (
+          <input
+            required
+            type="number"
+            min="0"
+            max="100"
+            placeholder="نسبة اكتمال الإنشاء (من 0 إلى 100)"
+            value={form.construction_progress}
+            onChange={(e) => setForm({ ...form, construction_progress: e.target.value })}
+            className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+          />
+        )}
+
+        <input
+          type="url"
+          placeholder="رابط موقع العقار من Google Maps (اختياري)"
+          value={form.google_maps_url}
+          onChange={(e) => setForm({ ...form, google_maps_url: e.target.value })}
+          className="bg-neutral-900 text-white rounded-lg px-4 py-3 outline-none"
+        />
+
         <div className="grid grid-cols-2 gap-4">
           <input
             required
@@ -283,6 +321,7 @@ export default function AdminEditPropertyPage() {
             onChange={(e) => setNewFiles(Array.from(e.target.files))}
             className="text-white text-sm"
           />
+          {newFiles.length > 0 && <div className="mt-3 grid grid-cols-3 gap-2">{newFiles.map((file, index) => <img key={`${file.name}-${index}`} src={URL.createObjectURL(file)} alt={`معاينة الصورة الجديدة ${index + 1}`} className="h-20 w-full rounded-lg object-cover" />)}</div>}
         </div>
 
         <label className="flex items-center gap-2 text-white text-sm">

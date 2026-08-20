@@ -17,11 +17,11 @@ export default function PropertyFilters({ types, cities }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-3 mb-8">
+    <div className="mb-1 grid grid-cols-2 gap-3 lg:grid-cols-4">
       <select
         defaultValue={searchParams.get('status') || ''}
         onChange={(e) => updateFilter('status', e.target.value)}
-        className="bg-neutral-900 text-white border border-white/10 rounded-lg px-4 py-2"
+        className="rafal-input min-w-0 cursor-pointer py-3"
       >
         <option value="">كل الحالات</option>
         <option value="for_sale">للبيع</option>
@@ -30,9 +30,20 @@ export default function PropertyFilters({ types, cities }) {
       </select>
 
       <select
+        defaultValue={searchParams.get('construction_stage') || ''}
+        onChange={(e) => updateFilter('construction_stage', e.target.value)}
+        className="rafal-input min-w-0 cursor-pointer py-3"
+      >
+        <option value="">كل مراحل الإنشاء</option>
+        <option value="under_construction">قيد الإنشاء</option>
+        <option value="ready">جاهز</option>
+        <option value="sold">مباع</option>
+      </select>
+
+      <select
         defaultValue={searchParams.get('type') || ''}
         onChange={(e) => updateFilter('type', e.target.value)}
-        className="bg-neutral-900 text-white border border-white/10 rounded-lg px-4 py-2"
+        className="rafal-input min-w-0 cursor-pointer py-3"
       >
         <option value="">كل الأنواع</option>
         {types.map((t) => (
@@ -43,7 +54,7 @@ export default function PropertyFilters({ types, cities }) {
       <select
         defaultValue={searchParams.get('city') || ''}
         onChange={(e) => updateFilter('city', e.target.value)}
-        className="bg-neutral-900 text-white border border-white/10 rounded-lg px-4 py-2"
+        className="rafal-input min-w-0 cursor-pointer py-3"
       >
         <option value="">كل المدن</option>
         {cities.map((c) => (
@@ -51,10 +62,10 @@ export default function PropertyFilters({ types, cities }) {
         ))}
       </select>
 
-      {(searchParams.get('status') || searchParams.get('type') || searchParams.get('city')) && (
+      {(searchParams.get('status') || searchParams.get('type') || searchParams.get('city') || searchParams.get('construction_stage')) && (
         <button
           onClick={() => router.push('/properties')}
-          className="text-gray-400 text-sm underline px-2"
+          className="rounded-full border border-[#E8E9E9]/15 px-4 py-3 text-sm text-[#E8E9E9]/70 transition hover:bg-[#E8E9E9] hover:text-[#0A291B]"
         >
           مسح الفلاتر
         </button>

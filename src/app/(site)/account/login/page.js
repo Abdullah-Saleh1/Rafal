@@ -30,9 +30,9 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center px-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-neutral-900 rounded-2xl p-8">
-        <h1 className="text-2xl font-extrabold text-white mb-6">تسجيل الدخول</h1>
+    <main className="rafal-page min-h-screen flex items-center justify-center px-6 py-12">
+      <form onSubmit={handleSubmit} className="rafal-surface w-full max-w-sm rounded-3xl p-8 shadow-2xl shadow-black/20">
+        <p className="mb-2 text-xs font-bold tracking-[.2em] text-[#E8E9E9]/50">RAFAL REAL ESTATE</p><h1 className="text-3xl font-extrabold text-[#E8E9E9] mb-2">تسجيل الدخول</h1><p className="mb-7 text-sm text-[#E8E9E9]/60">أهلًا بك مجددًا في رفال العقارية</p>
 
         <div className="flex flex-col gap-3">
           <input
@@ -41,7 +41,7 @@ export default function LoginPage() {
             placeholder="البريد الإلكتروني"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="bg-neutral-800 text-white rounded-lg px-4 py-3 outline-none"
+            className="rafal-input rounded-xl px-4 py-3 outline-none"
           />
           <input
             required
@@ -49,7 +49,7 @@ export default function LoginPage() {
             placeholder="كلمة المرور"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="bg-neutral-800 text-white rounded-lg px-4 py-3 outline-none"
+            className="rafal-input rounded-xl px-4 py-3 outline-none"
           />
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -57,14 +57,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-white text-black font-bold rounded-lg py-3 mt-2 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="rafal-button rounded-xl py-3 mt-2 disabled:opacity-50"
           >
             {loading ? 'جارِ الدخول...' : 'دخول'}
           </button>
 
-          <p className="text-gray-400 text-sm text-center mt-2">
+          <p className="text-[#E8E9E9]/60 text-sm text-center mt-2">
             مفيش عندك حساب؟{' '}
-            <a href="/account/signup" className="text-white underline">سجّل واحد جديد</a>
+            <a href="/account/signup" className="text-[#E8E9E9] underline">سجّل واحد جديد</a>
           </p>
         </div>
       </form>

@@ -9,6 +9,7 @@ const navigation = [
   { href: '/admin', label: 'نظرة عامة' },
   { href: '/admin/properties', label: 'إدارة العقارات' },
   { href: '/admin/leads', label: 'الرسائل والعملاء' },
+  { href: '/admin/after-sales', label: 'ما بعد البيع' },
 ]
 
 export default function AdminLayout({ children }) {

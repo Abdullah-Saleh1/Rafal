@@ -1,13 +1,5 @@
 import Link from 'next/link'
 
 export default function EditPropertyPage() {
-  return (
-    <main className="min-h-screen bg-black px-6 py-16 text-center">
-      <h1 className="text-2xl font-extrabold text-white">تعديل العقار غير متاح من الحساب</h1>
-      <p className="mt-3 text-gray-400">لتعديل أو حذف عقارك، تواصل مع إدارة الموقع.</p>
-      <Link href="/contact" className="mt-6 inline-block rounded-lg bg-white px-5 py-3 font-bold text-black">
-        تواصل معنا
-      </Link>
-    </main>
-  )
+  return <main className="rafal-page min-h-screen px-6 py-20 text-center"><h1 className="text-3xl font-extrabold text-[#E8E9E9]">تعديل العقار غير متاح</h1><p className="mt-3 text-[#E8E9E9]/65">لضمان سلامة المراجعة، التعديل والحذف يتمان عن طريق إدارة رفال فقط.</p><Link href="/contact" className="rafal-button mt-7 inline-block px-6 py-3">تواصل معنا</Link></main>
 }

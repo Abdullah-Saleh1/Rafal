@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase'
 const links = [
   { href: '/', label: 'الرئيسية' },
   { href: '/properties', label: 'العقارات' },
+  { href: '/about', label: 'من نحن' },
+  { href: '/after-sales', label: 'خدمات ما بعد البيع' },
   { href: '/contact', label: 'تواصل معنا' },
 ]
 
